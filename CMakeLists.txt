@@ -17,18 +17,22 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(PkgConfig)
 pkg_check_modules(GTK gtk4)
+find_package(custom_msg REQUIRED) 
 
 add_executable(gui_command ${sources} ${includes})
 
 ament_target_dependencies(gui_command
   rclcpp
   GTK
+  custom_msg
 )
 
 target_include_directories(gui_command PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
-  GTK_INCLUDE_DIRS)
+  GTK_INCLUDE_DIRS
+  #"../custom_msg/install/custom_msg/include/custom_msg"
+  )
 target_compile_features(gui_command PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
 target_link_libraries(gui_command ${GTK_LIBRARIES})

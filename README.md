@@ -36,7 +36,8 @@ You need ROS2_STM32_Comm's node to be started and an STM32 board running STM32_U
 ## Version
 
 - V0.0.0 : GUI
+- V0.1.0 : Communication with command server node 
 
 ## TODO
 
-- Communication with the command server node
+- Redo readme
