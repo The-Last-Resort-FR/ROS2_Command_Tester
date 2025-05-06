@@ -32,3 +32,11 @@ ros2 run gui_command gui_command
 ```
   
 You need ROS2_STM32_Comm's node to be started and an STM32 board running STM32_USB_Comm for it to work properly
+
+## Version
+
+- V0.0.0 : GUI
+
+## TODO
+
+- Communication with the command server node
