@@ -6,10 +6,12 @@ A GUI to test commands, meant to be used with [ROS2_STM32_Comm](https://github.c
 
 - ROS2 Humble
 - Gtk4
+- [ROS2_Custom_Msg](https://github.com/The-Last-Resort-FR/ROS2_Custom_Msg)
 
 ## Building
 
 Install ROS2 Humble [tutorial here](https://docs.ros.org/en/humble/Installation.html)  
+This repo needs the custom messages of [ROS2_Custom_Msg](https://github.com/The-Last-Resort-FR/ROS2_Custom_Msg)
 Install the dependencies  
 ```bash
 sudo apt update && sudo apt install libgtk-4-1 libgtk-4-dev  
@@ -17,11 +19,19 @@ sudo apt update && sudo apt install libgtk-4-1 libgtk-4-dev
 Clone the repository  
 ```bash
 git clone https://github.com/The-Last-Resort-FR/ROS2_Command_Tester.git
+git clone https://github.com/The-Last-Resort-FR/ROS2_Custom_Msg.git
 ```
-Build  
+Build ROS2_Custom_Msg first then ROS2_Command_Tester
 ```bash
-cd ROS2_Command_Tester
+cd ROS2_Custom_Msg
 colcon build
+source install/setup.sh
+cd ../ROS2_Command_Tester
+colcon build --symlink-install
+```
+Source the environement of ROS2_Command_Tester
+```bash
+source install/setup.bash
 ```
 
 ## Usage
