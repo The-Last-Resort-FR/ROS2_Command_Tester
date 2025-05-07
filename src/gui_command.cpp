@@ -7,10 +7,12 @@ int main(int argc, char **argv) {
     
     int status = 0;
     std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("gui_command");
-    rclcpp::Client<custom_msg::srv::Stcommand>::SharedPtr client = node->create_client<custom_msg::srv::Stcommand>("stcommand");
-    CommandApp app(node);
+    
+    auto executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+    CommandApp app(node, executor);
+    executor->add_node(node);
+
 
     status = app.Run(argc, argv);
-
-    return 0;
+    return status;
 }

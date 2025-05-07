@@ -1,10 +1,10 @@
 #include "CommandApp.hpp"
 
-CommandApp::CommandApp(std::shared_ptr<rclcpp::Node> nodehandle): mpApp(nullptr), mpNode(nodehandle), mStatus(0) {
+CommandApp::CommandApp(std::shared_ptr<rclcpp::Node> nodehandle, std::shared_ptr<rclcpp::executors::SingleThreadedExecutor> executor): mpApp(nullptr), mpNode(nodehandle), mpExecutor(executor), mStatus(0) {
     mpApp = gtk_application_new("ros2.gtk.gui_command", G_APPLICATION_FLAGS_NONE);
     g_signal_connect(mpApp, "activate", G_CALLBACK (CommandApp::BuildUI), this);
 
-    mpClient = mpNode->create_client<custom_msg::srv::Stcommand>("stcommand");
+    mpClient = mpNode->create_client<custom_msg::srv::Stcommand>("/send_stm_commands");
 }
 
 CommandApp::~CommandApp() {
@@ -55,6 +55,7 @@ void CommandApp::SendCommand(GtkWidget* widget, gpointer user_data) {
     auto request = std::make_shared<custom_msg::srv::Stcommand::Request>();
     request->command = std::stoul(command);
     request->arg = std::stoul(arg);
+    request->type = 1;
 
     while (!params->app->mpClient->wait_for_service(1s)) {
         if (!rclcpp::ok()) {
@@ -66,18 +67,22 @@ void CommandApp::SendCommand(GtkWidget* widget, gpointer user_data) {
 
     auto result = params->app->mpClient->async_send_request(request);
 
-    if (rclcpp::spin_until_future_complete(params->app->mpNode, result) == rclcpp::FutureReturnCode::SUCCESS)
+    if (params->app->mpExecutor->spin_until_future_complete(result) == rclcpp::FutureReturnCode::SUCCESS)
     {
-        char buff[256];
-        uint8_t* cast = (uint8_t*)&(result.get()->response);
-        uint8_t curr = 0;
-        sprintf(buff, "Response:\t");
-        curr += sizeof("Response:\t");
-        for(uint8_t i = 0; i < 9; i++) {
-            sprintf(buff + curr, "%X ", *(cast+i));
-            curr += 3;
+        char buff[256] = {0};  // Initialize buffer to zero
+        std::array<uint8_t, 9UL> r = result.get()->response;
+    
+        size_t curr = snprintf(buff, sizeof(buff), "Response:\t");
+    
+        for (size_t i = 0; i < r.size(); i++) {
+            if (curr < sizeof(buff)) {
+                curr += snprintf(buff + curr, sizeof(buff) - curr, "%02X ", r[i]); 
+            }
+            // RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "byte %zu: %u", i, r[i]);
         }
-
+    
+        // RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "buff: %s", buff);
+    
         std::string newlabel = label + buff + "\n";
         gtk_label_set_label(GTK_LABEL(resultLabel), newlabel.c_str());
     }

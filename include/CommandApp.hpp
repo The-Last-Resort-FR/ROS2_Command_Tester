@@ -14,10 +14,11 @@ class CommandApp {
 private:
     GtkApplication* mpApp;
     std::shared_ptr<rclcpp::Node> mpNode;
+    std::shared_ptr<rclcpp::executors::SingleThreadedExecutor> mpExecutor;
     rclcpp::Client<custom_msg::srv::Stcommand>::SharedPtr mpClient;
     int mStatus;
 public:
-    CommandApp(std::shared_ptr<rclcpp::Node> nodehandle);
+    CommandApp(std::shared_ptr<rclcpp::Node> nodehandle, std::shared_ptr<rclcpp::executors::SingleThreadedExecutor> executor);
     ~CommandApp();
     static void BuildUI(GtkApplication* app, gpointer user_data);
     static void SendCommand(GtkWidget* widget, gpointer user_data);
