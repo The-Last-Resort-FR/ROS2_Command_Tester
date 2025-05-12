@@ -76,14 +76,14 @@ void CommandApp::SendCommand(GtkWidget* widget, gpointer user_data) {
     
         for (size_t i = 0; i < r.size(); i++) {
             if (curr < sizeof(buff)) {
-                curr += snprintf(buff + curr, sizeof(buff) - curr, "%02X ", r[i]); 
+                curr += snprintf(buff + curr, sizeof(buff) - curr, "0x%02X ", r[i]); 
             }
             // RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "byte %zu: %u", i, r[i]);
         }
     
         // RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "buff: %s", buff);
     
-        std::string newlabel = label + buff + "\n";
+        std::string newlabel = label + "\n" + buff;
         gtk_label_set_label(GTK_LABEL(resultLabel), newlabel.c_str());
     }
     else

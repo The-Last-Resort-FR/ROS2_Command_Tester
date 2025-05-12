@@ -50,4 +50,4 @@ You need ROS2_STM32_Comm's node to be started and an STM32 board running STM32_U
 
 ## TODO
 
-- Redo readme
+- ComboBox or Dropdown for command type
