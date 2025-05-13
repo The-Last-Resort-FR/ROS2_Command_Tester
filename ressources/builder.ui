@@ -15,12 +15,7 @@
                         <child>
                             <object id="frame" class="GtkFrame">
                                 <child>
-                                    <object id="result" class="GtkLabel">
-                                        <property name="label">&#x9;&#x9;&#x9;st       0x00 0x01 0x02 0x03 0x04 0x05 0x06 0x07</property>
-                                        <property name="selectable">true</property>
-                                        <property name="xalign">0</property>
-                                        <property name="yalign">0</property>
-                                        <property name="wrap">true</property>
+                                    <object id="result" class="GtkGrid">
                                         <property name="hexpand">true</property>
                                         <property name="halign">fill</property>
                                         <property name="vexpand">true</property>
@@ -28,7 +23,6 @@
                                     </object>
                                 </child>
                             </object>
-                            
                         </child>
                         <layout>
                             <property name="column">0</property>

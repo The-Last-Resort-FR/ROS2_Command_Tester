@@ -1,6 +1,6 @@
 #include "CommandApp.hpp"
 
-CommandApp::CommandApp(std::shared_ptr<rclcpp::Node> nodehandle, std::shared_ptr<rclcpp::executors::SingleThreadedExecutor> executor): mpApp(nullptr), mpNode(nodehandle), mpExecutor(executor), mStatus(0) {
+CommandApp::CommandApp(std::shared_ptr<rclcpp::Node> nodehandle, std::shared_ptr<rclcpp::executors::SingleThreadedExecutor> executor): mpApp(nullptr), mpNode(nodehandle), mpExecutor(executor), mStatus(0), mRow(1) {
     mpApp = gtk_application_new("ros2.gtk.gui_command", G_APPLICATION_FLAGS_NONE);
     g_signal_connect(mpApp, "activate", G_CALLBACK (CommandApp::BuildUI), this);
 
@@ -28,6 +28,18 @@ void CommandApp::BuildUI(GtkApplication* app, gpointer user_data) {
     GObject *sendButton = gtk_builder_get_object(builder, "send-button");
     g_signal_connect(sendButton, "clicked", G_CALLBACK (CommandApp::SendCommand), params);
 
+    const char* headers[] = {
+        "status", "data0", "data1", "data2", "data3", "data4", "data5", "data6", "data7"
+    };
+    GtkGrid* grid = GTK_GRID(gtk_builder_get_object(builder, "result"));
+    for (int i = 1; i < 10; ++i) {
+        GtkWidget* header = gtk_label_new(headers[i-1]);
+        gtk_widget_set_halign(header, GTK_ALIGN_CENTER);
+        gtk_grid_attach(grid, header, i, 0, 1, 1);
+    }
+    gtk_grid_set_row_spacing(grid, 4);
+    gtk_grid_set_column_spacing(grid, 4);
+
 
     gtk_widget_set_visible(GTK_WIDGET (window), true);
     // params and builder are lost but we'll use it until the end of the app anyway
@@ -46,11 +58,12 @@ void CommandApp::SendCommand(GtkWidget* widget, gpointer user_data) {
     GtkBuilder* builder = params->builder;
     GObject* commandEntry = gtk_builder_get_object(builder, "command");
     GObject* argEntry = gtk_builder_get_object(builder, "argument");
-    GObject* resultLabel = gtk_builder_get_object(builder, "result");
+    //GObject* grid = gtk_builder_get_object(builder, "result");
+    GtkGrid* grid = GTK_GRID(gtk_builder_get_object(builder, "result"));
 
     std::string command = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(commandEntry)));
     std::string arg = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(argEntry)));
-    std::string label = gtk_label_get_text(GTK_LABEL(resultLabel));
+    //std::string label = gtk_label_get_text(GTK_LABEL(resultLabel));
 
     auto request = std::make_shared<custom_msg::srv::Stcommand::Request>();
     request->command = std::stoul(command);
@@ -69,22 +82,19 @@ void CommandApp::SendCommand(GtkWidget* widget, gpointer user_data) {
 
     if (params->app->mpExecutor->spin_until_future_complete(result) == rclcpp::FutureReturnCode::SUCCESS)
     {
-        char buff[256] = {0};  // Initialize buffer to zero
         std::array<uint8_t, 9UL> r = result.get()->response;
     
-        size_t curr = snprintf(buff, sizeof(buff), "Response:\t");
-    
-        for (size_t i = 0; i < r.size(); i++) {
-            if (curr < sizeof(buff)) {
-                curr += snprintf(buff + curr, sizeof(buff) - curr, "0x%02X ", r[i]); 
-            }
-            // RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "byte %zu: %u", i, r[i]);
+        GtkWidget* text = gtk_label_new("response: ");
+        gtk_widget_set_halign(text, GTK_ALIGN_START);
+        gtk_grid_attach(grid, text, 0, params->app->mRow, 1, 1);
+        for (size_t i = 1; i < r.size() + 1; ++i) {
+            char buff[16];
+            sprintf(buff, "0x%02X", r[i]);
+            GtkWidget* byteLabel = gtk_label_new(buff);
+            gtk_widget_set_halign(byteLabel, GTK_ALIGN_CENTER);
+            gtk_grid_attach(grid, byteLabel, i, params->app->mRow, 1, 1);
         }
-    
-        // RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "buff: %s", buff);
-    
-        std::string newlabel = label + "\n" + buff;
-        gtk_label_set_label(GTK_LABEL(resultLabel), newlabel.c_str());
+        params->app->mRow++;
     }
     else
     {

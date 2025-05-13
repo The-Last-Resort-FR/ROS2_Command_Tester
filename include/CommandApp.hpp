@@ -17,6 +17,7 @@ private:
     std::shared_ptr<rclcpp::executors::SingleThreadedExecutor> mpExecutor;
     rclcpp::Client<custom_msg::srv::Stcommand>::SharedPtr mpClient;
     int mStatus;
+    uint16_t mRow;
 public:
     CommandApp(std::shared_ptr<rclcpp::Node> nodehandle, std::shared_ptr<rclcpp::executors::SingleThreadedExecutor> executor);
     ~CommandApp();
