@@ -12,9 +12,13 @@ CommandApp::~CommandApp() {
 }
 
 void CommandApp::BuildUI(GtkApplication* app, gpointer user_data) {
-
+    CommandApp* appHandle = (CommandApp*)user_data;
+    std::string config_path;
+    appHandle->mpNode->declare_parameter<std::string>("config_path", "");
+    appHandle->mpNode->get_parameter("config_path", config_path);
     GtkBuilder* builder = gtk_builder_new();
-    gtk_builder_add_from_file(builder, "ressources/builder.ui", NULL);
+    //RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "UI file path: %s\n", (config_path + "/ressources/builder.ui").c_str());
+    gtk_builder_add_from_file(builder, (config_path + "/ressources/builder.ui").c_str(), NULL);
     GObject* window = gtk_builder_get_object(builder, "window");
 
     gtk_window_set_application(GTK_WINDOW (window), app);
@@ -22,7 +26,7 @@ void CommandApp::BuildUI(GtkApplication* app, gpointer user_data) {
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
 
     SendCommandSructure* params = new SendCommandSructure;
-    params->app = (CommandApp*)user_data;
+    params->app = appHandle;
     params->builder = builder;
 
     GObject *sendButton = gtk_builder_get_object(builder, "send-button");
@@ -87,7 +91,7 @@ void CommandApp::SendCommand(GtkWidget* widget, gpointer user_data) {
         GtkWidget* text = gtk_label_new("response: ");
         gtk_widget_set_halign(text, GTK_ALIGN_START);
         gtk_grid_attach(grid, text, 0, params->app->mRow, 1, 1);
-        for (size_t i = 1; i < r.size() + 1; ++i) {
+        for (size_t i = 0; i < r.size(); ++i) {
             char buff[16];
             sprintf(buff, "0x%02X", r[i]);
             GtkWidget* byteLabel = gtk_label_new(buff);

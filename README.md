@@ -38,7 +38,7 @@ source install/setup.bash
 
 Run the app  
 ```bash
-ros2 run gui_command gui_command 
+ros2 launch gui_command launch.py
 ```
   
 You need ROS2_STM32_Comm's node to be started and an STM32 board running STM32_USB_Comm for it to work properly

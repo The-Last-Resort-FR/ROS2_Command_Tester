@@ -13,6 +13,6 @@ int main(int argc, char **argv) {
     executor->add_node(node);
 
 
-    status = app.Run(argc, argv);
+    status = app.Run(1, argv);
     return status;
 }
