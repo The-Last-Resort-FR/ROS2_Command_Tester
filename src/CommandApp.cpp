@@ -96,7 +96,7 @@ void CommandApp::SendCommand(GtkWidget* widget, gpointer user_data) {
             sprintf(buff, "0x%02X", r[i]);
             GtkWidget* byteLabel = gtk_label_new(buff);
             gtk_widget_set_halign(byteLabel, GTK_ALIGN_CENTER);
-            gtk_grid_attach(grid, byteLabel, i, params->app->mRow, 1, 1);
+            gtk_grid_attach(grid, byteLabel, i+1, params->app->mRow, 1, 1);
         }
         params->app->mRow++;
     }
